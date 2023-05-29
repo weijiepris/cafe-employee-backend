@@ -1,14 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-const { getAllCafes } = require("../controller/cafeController");
 
-router.get("/", async (req, res) => {
-  let cafes = await getAllCafes();
-
-  console.log("cafes", cafes);
-  res.status(200).send({ message: "connected to cafe route successfully" });
-});
+// router.get("/", getAllCafes);
 
 
 // •	Create a GET endpoint /cafes?location=<location>
