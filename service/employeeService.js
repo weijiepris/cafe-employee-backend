@@ -1,14 +1,16 @@
 const db = require("../config/mysql");
 const Employee = require("../models/employeeModel");
 
-const findAllEmployee = async () => {
-  const employeeList = await Employee.findAll();
-  return employeeList;
+const findAllEmployee = () => {
+  return Employee.findAll();
 };
 
-const findEmployeeById = async (id) => {
-  const employee = await Employee.findById(id);
-  return employee;
+const findEmployeeById = (id) => {
+  return Employee.findById(id);
 };
 
-module.exports = { findAllEmployee, findEmployeeById };
+const deleteEmployeeById = (id) => {
+  return Employee.deleteById(id);
+};
+
+module.exports = { findAllEmployee, findEmployeeById, deleteEmployeeById };
