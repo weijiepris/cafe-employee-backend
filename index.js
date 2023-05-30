@@ -13,13 +13,16 @@ app.use(express.urlencoded({ extended: true }));
 const cafeRoutes = require("./routes/cafeRoute");
 const employeeRoutes = require("./routes/employeeRoute");
 
-app.use("/cafe", cafeRoutes);
-app.use("/employee", employeeRoutes);
-
+app.use("/cafes", cafeRoutes);
+app.use("/employees", employeeRoutes);
 
 app.get("/", (req, res) => {
   console.log("connected to /");
   res.status(200).send({ message: "connected successfully" });
+});
+
+app.post("/users", (req, res) => {
+  res.send({});
 });
 
 app.listen(port, () => {

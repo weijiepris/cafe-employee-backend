@@ -1,4 +1,3 @@
-const db = require("../config/mysql");
 const Employee = require("../models/employeeModel");
 
 const findAllEmployee = () => {

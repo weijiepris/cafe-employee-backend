@@ -14,18 +14,6 @@ Employee.findAll = () => {
   });
 };
 
-Employee.findById = (id) => {
-  return new Promise((resolve, reject) => {
-    let query = "SELECT * FROM employee WHERE ID = " + id;
-    db.query(query, (error, result) => {
-      if (error) {
-        reject(error);
-      }
-      resolve(result);
-    });
-  });
-};
-
 Employee.deleteById = (id) => {
   return new Promise(async (resolve, reject) => {
     const employee = await Employee.findById(id);
