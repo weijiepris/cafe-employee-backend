@@ -1,4 +1,4 @@
-const { findAllEmployee } = require("../../service/employeeService");
+const { findAllEmployee, findEmployeeByLocation } = require("../../service/employeeService");
 
 const findAll = (req, res) => {
   console.log("accessing findAll in /employees ");
@@ -21,12 +21,28 @@ const findAll = (req, res) => {
       });
   } else {
     console.log("req query cafe: ", value);
-    return res.status(200).json({
-      message: "employee found",
-    });
+    findAllByLocation(req, res, value);
   }
 };
 
+const findAllByLocation = (req, res, value) => {
+  console.log("accessing findAllByCafe in /employees ");
+  findEmployeeByLocation(value)
+    .then((response) => {
+      const employeeList = response;
+      return res.status(200).json({
+        message: "employee found",
+        response: employeeList,
+        records: employeeList.length,
+      });
+    })
+    .catch((err) => {
+      return res.status(400).json({
+        message: err,
+        response: [],
+      });
+    });
+};
 // const findById = (req, res) => {
 //   const id = req.params.id;
 //   findEmployeeById(id)

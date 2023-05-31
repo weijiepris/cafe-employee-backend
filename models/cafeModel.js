@@ -14,6 +14,29 @@ Cafe.findAll = () => {
   });
 };
 
+Cafe.create = (cafe) => {
+  return new Promise((resolve, reject) => {
+    let query = "INSERT INTO cafe SET ?";
+    db.query(query, cafe, (error, result) => {
+      if (error) {
+        reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
+Cafe.findByNameAndLocation = (cafe, location) => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT * FROM cafe where LOWER(name) = LOWER('${cafe}') and LOWER(location) = LOWER('${location}')`;
+    db.query(query, (error, result) => {
+      if (error) {
+        reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
 // Cafe.findById = (id) => {
 //   return new Promise((resolve, reject) => {
 //     let query = "SELECT * FROM cafe WHERE ID = " + id;
