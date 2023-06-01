@@ -8,8 +8,8 @@ const findEmployeeById = (id) => {
   return Employee.findById(id);
 };
 
-const findEmployeeByLocation = (location) => {
-  return Employee.findByLocation(location);
+const findEmployeeByCafe = (location) => {
+  return Employee.findByCafe(location);
 };
 
 const createEmployee = (employee) => {
@@ -20,4 +20,4 @@ const deleteEmployeeById = (id) => {
   return Employee.deleteById(id);
 };
 
-module.exports = { findAllEmployee, findEmployeeById, deleteEmployeeById, createEmployee, findEmployeeByLocation };
+module.exports = { findAllEmployee, findEmployeeById, deleteEmployeeById, createEmployee, findEmployeeByCafe };

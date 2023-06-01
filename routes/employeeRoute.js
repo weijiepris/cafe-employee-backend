@@ -7,7 +7,5 @@ const router = express.Router();
 router.get("/", findAll);
 router.post("/", create);
 router.delete("/", deleteById);
-// router.get("/:id", findById);
-// router.delete("/:id", deleteById);
 
 module.exports = router;

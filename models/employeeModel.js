@@ -14,7 +14,7 @@ Employee.findAll = () => {
   });
 };
 
-Employee.findByLocation = (cafe) => {
+Employee.findByCafe = (cafe) => {
   return new Promise((resolve, reject) => {
     let query = `SELECT employee.id, employee.name as 'Employee Name', employee.email_address, employee.phone_number, 
                     CASE
@@ -31,8 +31,6 @@ Employee.findByLocation = (cafe) => {
                   GROUP BY employee.id, employee.name, employee.email_address, employee.phone_number, cafe.name, 
                   cafe.location
                   ORDER BY total_days_worked DESC;`;
-
-    console.log(query);
     db.query(query, (error, result) => {
       if (error) {
         reject(error);

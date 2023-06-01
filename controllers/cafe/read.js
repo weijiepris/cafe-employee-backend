@@ -1,4 +1,7 @@
-const { findAllCafe, findCafeByName } = require("../../service/cafeService");
+const {
+  findAllCafe,
+  findCafeByLocation,
+} = require("../../service/cafeService");
 
 const findAll = (req, res) => {
   console.log("accessing findAll in /cafes ");
@@ -20,17 +23,15 @@ const findAll = (req, res) => {
         });
       });
   } else {
-    console.log("req query location: ", value);
-    return res.status(200).json({
-      message: "finding for cafe in location: " + value,
-    });
+    findAllByLocation(req, res, value);
   }
 };
 
-const findByName = (req, res, cafe) => {
-  findCafeByName(cafe)
+const findAllByLocation = (req, res, location) => {
+  console.log("accessing findAllByLocation from findAll() in /cafes ");
+  findCafeByLocation(location)
     .then((response) => {
-      return response;
+      return res.status(200).json(response);
     })
     .catch((err) => {
       console.log(err);
@@ -40,4 +41,4 @@ const findByName = (req, res, cafe) => {
     });
 };
 
-module.exports = { findAll, findByName };
+module.exports = { findAll, findAllByLocation };

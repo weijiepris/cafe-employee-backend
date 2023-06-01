@@ -10,7 +10,9 @@ const create = (req, res) => {
   let cafe = req.body;
   console.log(cafe);
   if (!validateCafe(cafe)) {
-    res.status(400).json({ message: "One or more information about Cafe not found" });
+    res
+      .status(400)
+      .json({ message: "One or more information about Cafe not found" });
     return;
   }
 
@@ -22,6 +24,10 @@ const create = (req, res) => {
       res.status(200).json(cafe);
     })
     .catch((err) => {
+      if (err.code === "ER_DUP_ENTRY") {
+        res.status(400).json({ message: `Cafe '${cafe.name}' already exists in location '${cafe.location}'`  });
+        return;
+      }
       res.status(400).json({ message: err.code });
       return;
     });

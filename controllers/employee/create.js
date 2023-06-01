@@ -57,6 +57,12 @@ const create = async (req, res) => {
       res.status(200).json(employee);
     })
     .catch((err) => {
+
+      if(err.code === "ER_DUP_ENTRY"){
+        res.status(400).json({ message: `Employee '${employee.name}' already exists`  });
+        return
+      }
+
       res.status(400).json({ message: err.code });
       return;
     });
