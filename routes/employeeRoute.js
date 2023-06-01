@@ -1,15 +1,14 @@
 const express = require("express");
-const { findAll } = require("../controllers/employee/read");
-const { create } = require("../controllers/employee/create");
-const { update } = require("../controllers/employee/update");
-const { deleteById } = require("../controllers/employee/delete");
-
 const router = express.Router();
 
-router.get("/", findAll);
-router.post("/", create);
-router.put("/", update);
-router.delete("/", deleteById);
+const EmployeeReadController = require("../controllers/employee/read");
+const EmployeeDeleteController = require("../controllers/employee/delete");
+const EmployeeUpdateController = require("../controllers/employee/update");
+const EmployeCreateController = require("../controllers/employee/create");
 
+router.get("/", EmployeeReadController.findAll);
+router.post("/", EmployeCreateController.create);
+router.put("/", EmployeeUpdateController.update);
+router.delete("/", EmployeeDeleteController.deleteById);
 
 module.exports = router;

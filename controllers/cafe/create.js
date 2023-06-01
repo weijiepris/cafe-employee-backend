@@ -1,36 +1,15 @@
-const _ = require("lodash");
-
-const { validateCafe } = require("./utilities/validator");
-const { generateUUID } = require("./utilities/uuid");
 const CafeService = require("../../service/cafeService");
 
-const create = (req, res) => {
-  console.log("accessing create in /cafes ");
+const CafeCreateController = { create: () => {} };
 
-  let cafe = req.body;
-  console.log(cafe);
-  if (!validateCafe(cafe)) {
-    res
-      .status(400)
-      .json({ message: "One or more information about Cafe not found" });
-    return;
-  }
-
-  cafe.id = generateUUID();
-
-  console.log("generated new ID ", cafe);
-  CafeService.createCafe(cafe)
-    .then(() => {
-      res.status(200).json(cafe);
+CafeCreateController.create = (req, res) => {
+  return CafeService.createCafe(req, res)
+    .then((response) => {
+      return res.status(200).json(response);
     })
     .catch((err) => {
-      if (err.code === "ER_DUP_ENTRY") {
-        res.status(400).json({ message: `Cafe '${cafe.name}' already exists in location '${cafe.location}'`  });
-        return;
-      }
-      res.status(400).json({ message: err.code });
-      return;
+      return res.status(400).json(err);
     });
 };
 
-module.exports = { create };
+module.exports = CafeCreateController;

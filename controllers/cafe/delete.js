@@ -1,18 +1,15 @@
-const { deleteEmployeeById } = require("../../service/employeeService");
+const CafeService = require("../../service/cafeService");
 
-const deleteById = (req, res) => {
-  const id = req.params.id;
-  deleteEmployeeById(id)
-    .then((response) => {
-      const employee = response;
-      console.log(employee);
-      return res
-        .status(200)
-        .json({ message: "employee deleted", response: employee });
+const CafeDeleteController = { deleteById: () => {} };
+
+CafeDeleteController.deleteById = (req, res) => {
+  return CafeService.deleteCafeById(req, res)
+    .then(() => {
+      return res.sendStatus(200);
     })
     .catch((err) => {
-      return res.status(404).json({ message: err, response: [] });
+      return res.status(400).json(err);
     });
 };
 
-module.exports = { deleteById };
+module.exports = CafeDeleteController;

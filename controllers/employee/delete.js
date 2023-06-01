@@ -1,18 +1,15 @@
-const { deleteEmployeeById } = require("../../service/employeeService");
+const EmployeeService = require("../../service/employeeService");
 
-const deleteById = (req, res) => {
-  const id = req.params.id;
-  deleteEmployeeById(id)
-    .then((response) => {
-      const employee = response;
-      console.log(employee);
-      return res
-        .status(200)
-        .json({ message: "employee deleted", response: employee });
+const EmployeeDeleteController = { deleteById: () => {} };
+
+EmployeeDeleteController.deleteById = (req, res) => {
+  return EmployeeService.deleteEmployeeById(req, res)
+    .then(() => {
+      return res.sendStatus(200);
     })
     .catch((err) => {
-      return res.status(404).json({ message: err, response: [] });
+      return res.status(400).json(err.message);
     });
 };
 
-module.exports = { deleteById };
+module.exports = EmployeeDeleteController;

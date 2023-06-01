@@ -1,14 +1,14 @@
 const express = require("express");
-const { findAll } = require("../controllers/cafe/read");
-const { create } = require("../controllers/cafe/create");
-const { update } = require("../controllers/cafe/update");
-const { deleteById } = require("../controllers/cafe/delete");
+const CafeReadController = require("../controllers/cafe/read");
+const CafeDeleteController = require("../controllers/cafe/delete");
+const CafeUpdateController = require("../controllers/cafe/update");
+const CafeCreateController = require("../controllers/cafe/create");
 
 const router = express.Router();
 
-router.get("/", findAll);
-router.post("/", create);
-router.put("/", update);
-router.delete("/", deleteById);
+router.get("/", CafeReadController.findAll);
+router.post("/", CafeCreateController.create);
+router.put("/", CafeUpdateController.update);
+router.delete("/", CafeDeleteController.deleteById);
 
 module.exports = router;
