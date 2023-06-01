@@ -11,7 +11,14 @@ const Employee = {
 
 Employee.findAll = () => {
   return new Promise((resolve, reject) => {
-    let query = "SELECT * FROM employee";
+    let query = `SELECT e.*, c.name AS 'cafe_name',
+                    CASE
+                      WHEN DATEDIFF(NOW(), ec.date_start) < 0 THEN 0
+                      ELSE DATEDIFF(NOW(), ec.date_start)
+                    END AS days_worked
+                  FROM employee e
+                  LEFT JOIN employee_cafe ec ON e.id = ec.employee_id
+                  LEFT JOIN cafe c ON c.id = ec.cafe_id;`;
     db.query(query, (error, result) => {
       if (error) {
         reject(error);
