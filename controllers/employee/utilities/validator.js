@@ -8,4 +8,15 @@ const validateEmployee = (employee) => {
   );
 };
 
-module.exports = { validateEmployee };
+const validateEmployeeWithId = (employee) => {
+  //name, email_address, phone_number, gender cannot be null
+  return !(
+    !employee.id ||
+    !employee.name ||
+    !employee.email_address ||
+    !employee.phone_number ||
+    !employee.gender
+  );
+};
+
+module.exports = { validateEmployee, validateEmployeeWithId };

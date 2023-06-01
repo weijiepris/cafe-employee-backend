@@ -14,17 +14,17 @@ Cafe.findAll = () => {
   });
 };
 
-Cafe.create = (cafe) => {
+Cafe.findById = (id) => {
   return new Promise((resolve, reject) => {
-    let query = "INSERT INTO cafe SET ?";
-    db.query(query, cafe, (error, result) => {
+    let query = `SELECT * FROM cafe where id = '${id}'`;
+    db.query(query, (error, result) => {
       if (error) {
         reject(error);
       }
       resolve(result);
     });
   });
-};
+}
 
 Cafe.findByNameAndLocation = (cafe, location) => {
   return new Promise((resolve, reject) => {
@@ -55,17 +55,32 @@ Cafe.findByLocation = (location) => {
     });
   });
 };
-// Cafe.findById = (id) => {
-//   return new Promise((resolve, reject) => {
-//     let query = "SELECT * FROM cafe WHERE ID = " + id;
-//     db.query(query, (error, result) => {
-//       if (error) {
-//         reject(error);
-//       }
-//       resolve(result);
-//     });
-//   });
-// };
+
+Cafe.create = (cafe) => {
+  return new Promise((resolve, reject) => {
+    let query = "INSERT INTO cafe SET ?";
+    db.query(query, cafe, (error, result) => {
+      if (error) {
+        reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
+Cafe.update = (cafe) => {
+  console.log("updating:", cafe);
+  return new Promise((resolve, reject) => {
+    let query = `UPDATE cafe SET ? WHERE id = '${cafe.id}'`;
+    console.log(query)
+    db.query(query, cafe, (error, result) => {
+      if (error) {
+        reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
 
 // Cafe.deleteById = (id) => {
 //   return new Promise(async (resolve, reject) => {

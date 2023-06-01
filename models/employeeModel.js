@@ -14,6 +14,18 @@ Employee.findAll = () => {
   });
 };
 
+Employee.findById = (id) => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT * FROM employee WHERE id = '${id}'`;
+    db.query(query, (error, result) => {
+      if (error) {
+        reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
 Employee.findByCafe = (cafe) => {
   return new Promise((resolve, reject) => {
     let query = `SELECT employee.id, employee.name as 'Employee Name', employee.email_address, employee.phone_number, 
@@ -61,6 +73,18 @@ Employee.deleteById = (id) => {
 Employee.create = (employee) => {
   return new Promise((resolve, reject) => {
     let query = "INSERT INTO employee SET ?";
+    db.query(query, employee, (error, result) => {
+      if (error) {
+        reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
+Employee.update = (employee) => {
+  return new Promise((resolve, reject) => {
+    let query = `UPDATE employee SET ? WHERE id = '${employee.id}'`;
     db.query(query, employee, (error, result) => {
       if (error) {
         reject(error);

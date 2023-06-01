@@ -2,7 +2,7 @@ const _ = require("lodash");
 
 const { validateCafe } = require("./utilities/validator");
 const { generateUUID } = require("./utilities/uuid");
-const { createCafe } = require("../../service/cafeService");
+const CafeService = require("../../service/cafeService");
 
 const create = (req, res) => {
   console.log("accessing create in /cafes ");
@@ -19,7 +19,7 @@ const create = (req, res) => {
   cafe.id = generateUUID();
 
   console.log("generated new ID ", cafe);
-  createCafe(cafe)
+  CafeService.createCafe(cafe)
     .then(() => {
       res.status(200).json(cafe);
     })

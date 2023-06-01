@@ -1,23 +1,29 @@
 const Employee = require("../models/employeeModel");
 
-const findAllEmployee = () => {
+const EmployeeService = {};
+
+EmployeeService.findAllEmployee = () => {
   return Employee.findAll();
 };
 
-const findEmployeeById = (id) => {
+EmployeeService.findEmployeeById = (id) => {
   return Employee.findById(id);
 };
 
-const findEmployeeByCafe = (location) => {
+EmployeeService.findEmployeeByCafe = (location) => {
   return Employee.findByCafe(location);
 };
 
-const createEmployee = (employee) => {
+EmployeeService.createEmployee = (employee) => {
   return Employee.create(employee);
-}
+};
 
-const deleteEmployeeById = (id) => {
+EmployeeService.updateEmployee = (employee) => {
+  return Employee.update(employee);
+};
+
+EmployeeService.deleteEmployeeById = (id) => {
   return Employee.deleteById(id);
 };
 
-module.exports = { findAllEmployee, findEmployeeById, deleteEmployeeById, createEmployee, findEmployeeByCafe };
+module.exports = EmployeeService;

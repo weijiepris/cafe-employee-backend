@@ -1,7 +1,13 @@
 const EmployeeCafe = require("../models/employeeCafeModel");
 
-const createEmployeeCafe = (employeeCafe) => {
+const EmployeeCafeService = {};
+
+EmployeeCafeService.createEmployeeCafe = (employeeCafe) => {
   return EmployeeCafe.create(employeeCafe);
 };
 
-module.exports = { createEmployeeCafe };
+EmployeeCafeService.updateEmployeeCafe = (employeeCafe) => {
+  return EmployeeCafe.update(employeeCafe);
+};
+
+module.exports = EmployeeCafeService;

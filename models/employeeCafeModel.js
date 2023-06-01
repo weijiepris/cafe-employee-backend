@@ -14,4 +14,17 @@ EmployeeCafe.create = (employeeCafe) => {
   });
 };
 
+EmployeeCafe.update = (employeeCafe) => {
+  console.log("12341234", employeeCafe);
+  return new Promise((resolve, reject) => {
+    let query = `UPDATE employee_cafe SET ? WHERE employee_id = '${employeeCafe.employee_id}'`;
+    db.query(query, employeeCafe, (error, result) => {
+      if (error) {
+        reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
 module.exports = EmployeeCafe;
