@@ -1,134 +1,150 @@
 const Cafe = require("../models/cafeModel");
 const { validateCafe } = require("./utilities/validator");
 const { generateCafeUUID } = require("./utilities/uuid");
+const BlobUtil = require("blob-util");
+const { Blob } = require("buffer");
 
-const CafeService = {};
+const CafeService = {
+  findAllCafe: (req, res) => {
+    return new Promise((resolve, reject) => {
+      const location = req.query.location;
 
-CafeService.findAllCafe = (req, res) => {
-  return new Promise((resolve, reject) => {
-    const location = req.query.location;
+      // if valid location params is provided
+      if (location) {
+        return CafeService.findCafeByLocation(req, res)
+          .then((response) => {
+            resolve(response);
+          })
+          .catch((err) => reject(err));
+      }
 
-    // if valid location params is provided
-    if (location) {
-      return CafeService.findCafeByLocation(req, res)
+      // no valid location params provided, will retrieve all cafes
+      return Cafe.findAll()
+        .then((response) => {
+          response.forEach((cafe) => {
+            if (cafe.logo) {
+              const buffer = Buffer.from(cafe.logo, "hex");
+              const uint8Array = new Uint8Array(buffer);
+              const blob = new Blob([uint8Array], { type: "image/jpeg" });
+              cafe.logo = blob;
+            }
+          });
+          resolve(response);
+        })
+        .catch((err) => reject(err));
+    });
+  },
+
+  findCafeByLocation: (req, res) => {
+    return new Promise((resolve, reject) => {
+      const location = req.query.location ?? req.params.location;
+
+      return Cafe.findByLocation(location)
         .then((response) => resolve(response))
         .catch((err) => reject(err));
-    }
+    });
+  },
 
-    // no valid location params provided, will retrieve all employees
-    return Cafe.findAll()
-      .then((response) => resolve(response))
-      .catch((err) => reject(err));
-  });
-};
+  findCafeLocationByName: (req, res) => {
+    return new Promise((resolve, reject) => {
+      const name = req.params.name;
 
-CafeService.findCafeByLocation = (req, res) => {
-  return new Promise((resolve, reject) => {
-    const location = req.query.location;
+      return Cafe.findByName(name)
+        .then((response) => resolve(response))
+        .catch((err) => reject(err));
+    });
+  },
 
-    return Cafe.findByLocation(location)
-      .then((response) => resolve(response))
-      .catch((err) => reject(err));
-  });
-};
+  updateCafe: (req, res) => {
+    return new Promise(async (resolve, reject) => {
+      let cafe = req.body;
 
-CafeService.updateCafe = (req, res) => {
-  return new Promise(async (resolve, reject) => {
-    let cafe = req.body;
+      // validate cafe object
+      if (!validateCafe(cafe)) {
+        reject("One or more information about Cafe not found");
+      }
 
-    // validate cafe object
-    if (!validateCafe(cafe)) {
-      reject("One or more information about Cafe not found");
-    }
+      // check if cafe record exists
+      const cafeExists = await CafeService.findCafeById(cafe.id).then(
+        (response) => response
+      );
 
-    // check if cafe record exist
-    const cafeExists = await CafeService.findCafeById(cafe.id).then(
-      (response) => response
-    );
+      if (cafeExists.length === 0) {
+        reject(`Cafe with id '${cafe.id}' does not exist`);
+      }
 
-    if (cafeExists.length === 0) {
-      reject(`Cafe with id '${cafe.id}' does not exist`);
-    }
+      return Cafe.update(cafe)
+        .then(() => {
+          resolve(cafe);
+        })
+        .catch((err) => reject(err));
+    });
+  },
 
-    return Cafe.update(cafe)
-      .then(() => {
-        resolve(cafe);
-      })
-      .catch((err) => reject(err));
-  });
-};
+  findCafeByNameAndLocation: (cafeName, location) => {
+    return new Promise(async (resolve, reject) => {
+      return Cafe.findByNameAndLocation(cafeName, location)
+        .then((response) => {
+          resolve(response);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
 
-CafeService.findCafeByNameAndLocation = (cafeName, location) => {
-  return new Promise(async (resolve, reject) => {
-    return Cafe.findByNameAndLocation(cafeName, location)
-      .then((response) => {
-        resolve(response);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-};
+  createCafe: (req, res) => {
+    return new Promise(async (resolve, reject) => {
+      let cafe = req.body;
 
-// CafeService.findCafeByLocation = (location) => {
-//   return Cafe.findByLocation(location);
-// };
+      // validate cafe object
+      if (!validateCafe(cafe)) {
+        reject("One or more information about Cafe not found");
+      }
 
-// CafeService.updateCafe = (cafe) => {
-//   return Cafe.update(cafe);
-// };
+      // generate new uuid
+      cafe.id = generateCafeUUID();
 
-CafeService.createCafe = (req, res) => {
-  return new Promise(async (resolve, reject) => {
-    let cafe = req.body;
+      Cafe.create(cafe)
+        .then(() => {
+          resolve(cafe);
+        })
+        .catch((err) => {
+          if (err.code === "ER_DUP_ENTRY") {
+            reject(
+              `Cafe '${cafe.name}' already exists in location '${cafe.location}'`
+            );
+          }
+          reject(err);
+        });
+    });
+  },
 
-    // validate cafe object
-    if (!validateCafe(cafe)) {
-      reject("One or more information about Cafe not found");
-    }
+  findCafeById: (id) => {
+    return Cafe.findById(id);
+  },
 
-    // generate new uuid
-    cafe.id = generateCafeUUID();
+  deleteCafeById: (req, res) => {
+    return new Promise(async (resolve, reject) => {
+      const id = req.params.id;
 
-    Cafe.create(cafe)
-      .then(() => {
-        resolve(cafe);
-      })
-      .catch((err) => {
-        if (err.code === "ER_DUP_ENTRY") {
-          reject(
-            `Cafe '${cafe.name}' already exists in location '${cafe.location}'`
-          );
-        }
-        reject(err);
-      });
-  });
-};
+      // check if cafe exists
+      const cafe = await CafeService.findCafeById(id);
 
-CafeService.findCafeById = (id) => {
-  return Cafe.findById(id);
-};
+      // cafe not found
+      if (cafe.length === 0) {
+        reject({ message: `Cafe with id '${id}' does not exist` });
+      }
 
-CafeService.deleteCafeById = (req, res) => {
-  return new Promise(async (resolve, reject) => {
-    const id = req.body.id;
-
-    // check if cafe exists
-    const cafe = await CafeService.findCafeById(id);
-
-    // cafe not found
-    if (cafe.length === 0) {
-      reject({ message: `Cafe with id '${id}' does not exist` });
-    }
-
-    Cafe.deleteById(id)
-      .then(() => {
-        resolve("Cafe deleted");
-      })
-      .catch((err) => {
-        reject(`Unable to delete cafe ${err}`);
-      });
-  });
+      Cafe.deleteById(id)
+        .then(() => {
+          resolve("Cafe deleted");
+        })
+        .catch((err) => {
+          reject(`Unable to delete cafe ${err}`);
+        });
+    });
+  },
 };
 
 module.exports = CafeService;
