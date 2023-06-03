@@ -97,7 +97,6 @@ const CafeService = {
     return new Promise(async (resolve, reject) => {
       let cafe = req.body;
 
-      console.log(cafe);
       // validate cafe object
       if (!validateCafe(cafe)) {
         reject("One or more information about Cafe not found");
@@ -105,7 +104,6 @@ const CafeService = {
 
       // generate new uuid
       cafe.id = generateCafeUUID();
-      console.log(cafe);
 
       Cafe.create(cafe)
         .then(() => {

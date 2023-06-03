@@ -126,12 +126,25 @@ function createEmployeeCafeTable() {
 }
 
 // Connect to the database
-db.connect((err) => {
-  if (err) {
-    console.log("MySQL connection has failed:", err);
-  } else {
-    console.log("MySQL connection has been initialized successfully");
-  }
-});
+let retries = 0;
+
+function attemptConnection() {
+  db.connect((err) => {
+    if (err) {
+      console.error("MySQL connection error:", err);
+      if (retries < 5) {
+        retries++;
+        console.log(`Retrying connection (attempt ${retries})...`);
+        setTimeout(attemptConnection, 2000); // Retry after 2 seconds
+      } else {
+        console.error("Maximum number of connection retries exceeded.");
+      }
+    } else {
+      console.log("MySQL connection has been established successfully");
+    }
+  });
+}
+
+attemptConnection();
 
 module.exports = db;

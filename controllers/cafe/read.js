@@ -2,10 +2,8 @@ const CafeService = require("../../service/cafeService");
 
 const CafeReadController = {
   findAll: (req, res) => {
-    console.log("in /cafe findAll");
     CafeService.findAllCafe(req, res)
       .then((response) => {
-        console.log(response);
 
         return res.status(200).json(response);
       })
@@ -15,7 +13,6 @@ const CafeReadController = {
   },
 
   findByCafeName: (req, res) => {
-    console.log("in /cafe findByCafeName");
     CafeService.findCafeLocationByName(req, res)
       .then((response) => {
         response.forEach((obj) => {
@@ -32,7 +29,6 @@ const CafeReadController = {
   },
 
   findByLocation: (req, res) => {
-    console.log("in /cafe findByLocation");
     CafeService.findCafeByLocation(req, res)
       .then((response) => {
         response.forEach((obj) => {

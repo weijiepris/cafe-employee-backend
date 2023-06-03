@@ -2,7 +2,6 @@ const CafeService = require("../../service/cafeService");
 
 const CafeCreateController = {
   create: (req, res) => {
-    console.log("in /cafe create");
     const { name, description, location } = req.body;
     const imageFile = req.file;
 
