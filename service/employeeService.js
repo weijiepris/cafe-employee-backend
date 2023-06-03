@@ -126,9 +126,7 @@ const EmployeeService = {
           if (cafeExists.length === 0) {
             db.rollback(() => {
               console.error("Transaction rolled back.");
-              reject(
-                `Cafe '${cafe}' does not exist in location '${location}'`
-              );
+              reject(`Cafe '${cafe}' does not exist in location '${location}'`);
             });
           }
 
@@ -139,7 +137,6 @@ const EmployeeService = {
           };
           EmployeeCafeService.createEmployeeCafe(employeeCafe)
             .then(() => {
-              console.log("employee_cafe created successfully");
               db.commit();
               resolve(employee);
             })
@@ -224,7 +221,6 @@ const EmployeeService = {
 
             EmployeeCafeService.createEmployeeCafe(employeeCafe)
               .then(() => {
-                console.log("employee_cafe created successfully");
                 db.commit();
                 resolve(employee);
               })
