@@ -5,7 +5,7 @@ const port = process.env.SECRET_PORT;
 const app = express();
 
 // to allow access into backend
-app.use(cors({ origin: true }));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
