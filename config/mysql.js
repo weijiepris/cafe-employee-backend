@@ -5,14 +5,132 @@ const db = mysql.createConnection({
   host: "mysql",
   user: "root",
   password: "pass123",
-  database: "cafedb",
 });
 
+// Check if the database exists
+db.query(
+  "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'cafedb'",
+  (err, results) => {
+    if (err) {
+      console.log("Error checking if database exists:", err);
+    } else {
+      if (results.length === 0) {
+        // Database does not exist, create it
+        db.query("CREATE DATABASE cafedb", (err) => {
+          if (err) {
+            console.log("Error creating database:", err);
+          } else {
+            console.log("Database 'cafedb' created successfully");
+            createEmployeeTable();
+          }
+        });
+      } else {
+        console.log("Database 'cafedb' already exists");
+        createEmployeeTable();
+      }
+    }
+  }
+);
+
+// Function to create the employee table
+function createEmployeeTable() {
+  // Connect to the cafedb database
+  db.query("USE cafedb", (err) => {
+    if (err) {
+      console.log("Error selecting database:", err);
+    } else {
+      // Create the employee table if it doesn't exist
+      db.query(
+        `CREATE TABLE IF NOT EXISTS employee (
+          id VARCHAR(9) NOT NULL COMMENT 'unique employee identifier',
+          name VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'given name',
+          email_address VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'email address',
+          phone_number INT(8) NOT NULL COMMENT 'Phone/Contact number',
+          gender VARCHAR(1) COMMENT 'Gender (M - Male, F - Female)',
+          PRIMARY KEY (id)
+        )`,
+        (err) => {
+          if (err) {
+            console.log("Error creating employee table:", err);
+            createCafeTable();
+          } else {
+            console.log("Employee table created successfully");
+            createCafeTable();
+          }
+        }
+      );
+    }
+  });
+}
+
+// Function to create the cafe table
+function createCafeTable() {
+  // Connect to the cafedb database
+  db.query("USE cafedb", (err) => {
+    if (err) {
+      console.log("Error selecting database:", err);
+    } else {
+      // Create the cafe table if it doesn't exist
+      db.query(
+        `CREATE TABLE IF NOT EXISTS cafe (
+          id VARCHAR(36) NOT NULL,
+          name VARCHAR(255) NOT NULL COMMENT 'name of cafe',
+          description VARCHAR(255) NOT NULL COMMENT 'description of cafe',
+          logo BLOB,
+          location VARCHAR(255) NOT NULL COMMENT 'location of cafe',
+          PRIMARY KEY (id),
+          UNIQUE KEY cafe_unique_id (name, location)
+        )`,
+        (err) => {
+          if (err) {
+            console.log("Error creating cafe table:", err);
+            createEmployeeCafeTable();
+          } else {
+            console.log("Cafe table created successfully");
+            createEmployeeCafeTable();
+          }
+        }
+      );
+    }
+  });
+}
+
+// Function to create the employee_cafe table
+function createEmployeeCafeTable() {
+  // Connect to the cafedb database
+  db.query("USE cafedb", (err) => {
+    if (err) {
+      console.log("Error selecting database:", err);
+    } else {
+      // Create the employee_cafe table if it doesn't exist
+      db.query(
+        `CREATE TABLE IF NOT EXISTS employee_cafe (
+          employee_id VARCHAR(9) NOT NULL,
+          cafe_id VARCHAR(36) NOT NULL,
+          date_start DATE,
+          date_end DATE,
+          PRIMARY KEY (employee_id),
+          FOREIGN KEY (employee_id) REFERENCES employee(id) ON DELETE CASCADE,
+          FOREIGN KEY (cafe_id) REFERENCES cafe(id) ON DELETE CASCADE
+        )`,
+        (err) => {
+          if (err) {
+            console.log("Error creating employee_cafe table:", err);
+          } else {
+            console.log("employee_cafe table created successfully");
+          }
+        }
+      );
+    }
+  });
+}
+
+// Connect to the database
 db.connect((err) => {
   if (err) {
-    console.log("MySQL connection has failed, ", err);
+    console.log("MySQL connection has failed:", err);
   } else {
-    console.log("MySQL connection has been initialised successfully");
+    console.log("MySQL connection has been initialized successfully");
   }
 });
 
