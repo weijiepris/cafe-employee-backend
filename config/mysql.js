@@ -8,29 +8,31 @@ const db = mysql.createConnection({
 });
 
 // Check if the database exists
-db.query(
-  "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'cafedb'",
-  (err, results) => {
-    if (err) {
-      console.log("Error checking if database exists:", err);
-    } else {
-      if (results.length === 0) {
-        // Database does not exist, create it
-        db.query("CREATE DATABASE cafedb", (err) => {
-          if (err) {
-            console.log("Error creating database:", err);
-          } else {
-            console.log("Database 'cafedb' created successfully");
-            createEmployeeTable();
-          }
-        });
+const initialiseTables = () => {
+  db.query(
+    "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'cafedb'",
+    (err, results) => {
+      if (err) {
+        console.log("Error checking if database exists:", err);
       } else {
-        console.log("Database 'cafedb' already exists");
-        createEmployeeTable();
+        if (results.length === 0) {
+          // Database does not exist, create it
+          db.query("CREATE DATABASE cafedb", (err) => {
+            if (err) {
+              console.log("Error creating database:", err);
+            } else {
+              console.log("Database 'cafedb' created successfully");
+              createEmployeeTable();
+            }
+          });
+        } else {
+          console.log("Database 'cafedb' already exists");
+          createEmployeeTable();
+        }
       }
     }
-  }
-);
+  );
+};
 
 // Function to create the employee table
 function createEmployeeTable() {
@@ -141,6 +143,7 @@ function attemptConnection() {
       }
     } else {
       console.log("MySQL connection has been established successfully");
+      initialiseTables();
     }
   });
 }
