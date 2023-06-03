@@ -2,6 +2,7 @@ const CafeService = require("../../service/cafeService");
 
 const CafeCreateController = {
   create: (req, res) => {
+    console.log("in /cafe create");
     const { name, description, location } = req.body;
     const imageFile = req.file;
 
@@ -22,7 +23,7 @@ const CafeCreateController = {
       .catch((err) => {
         return res.status(400).json(err);
       });
-  }
+  },
 };
 
 module.exports = CafeCreateController;
