@@ -9,6 +9,7 @@ const db = mysql.createConnection({
 
 // Check if the database exists
 const initialiseTables = () => {
+
   db.query(
     "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'cafedb'",
     (err, results) => {
@@ -32,7 +33,7 @@ const initialiseTables = () => {
       }
     }
   );
-};
+}
 
 // Function to create the employee table
 function createEmployeeTable() {
@@ -134,7 +135,7 @@ function attemptConnection() {
   db.connect((err) => {
     if (err) {
       console.error("MySQL connection error:", err);
-      if (retries < 5) {
+      if (retries < 2) {
         retries++;
         console.log(`Retrying connection (attempt ${retries})...`);
         setTimeout(attemptConnection, 2000); // Retry after 2 seconds
