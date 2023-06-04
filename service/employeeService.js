@@ -78,6 +78,8 @@ const EmployeeService = {
         }
 
         let employee = req.body;
+        console.log("creating employee", employee)
+        const date_start = employee.date_start;
         if (!validateEmployee(employee)) {
           reject("One or more information about Employee not found");
         }
@@ -105,11 +107,13 @@ const EmployeeService = {
 
         delete employee.cafe;
         delete employee.location;
+        delete employee.date_start;
 
         Employee.create(employee)
           .then(() => {
             if (!cafe && !location) {
               db.commit();
+              console.log("employee created", employee)
               resolve(employee);
             }
           })
@@ -133,12 +137,14 @@ const EmployeeService = {
           let employeeCafe = {
             employee_id: employee.id,
             cafe_id: cafeExists[0].id,
-            date_start: new Date(),
+            date_start: date_start,
           };
+
+          console.log("creating employeeCafe", employeeCafe)
           EmployeeCafeService.createEmployeeCafe(employeeCafe)
             .then(() => {
               db.commit();
-              resolve(employee);
+              resolve(employeeCafe);
             })
             .catch((err) => {
               if (err.code === "ER_DUP_ENTRY") {
@@ -159,7 +165,8 @@ const EmployeeService = {
   updateEmployee: (req, res) => {
     return new Promise(async (resolve, reject) => {
       let employee = req.body;
-
+      const date_start = employee.date_start;
+      const date_end = employee.date_end;
       db.beginTransaction(async (dbErr) => {
         if (dbErr) {
           reject("Error beginning transaction:", err);
@@ -180,6 +187,9 @@ const EmployeeService = {
         if (!cafe && !location) {
           delete employee.cafe;
           delete employee.location;
+          delete employee.date_start;
+          delete employee.date_end;
+
           return Employee.update(employee)
             .then(() => {
               db.commit();
@@ -210,7 +220,13 @@ const EmployeeService = {
           const employeeCafe = {
             employee_id: employeeExists[0].id,
             cafe_id: cafeExists[0].id,
+            date_start,
+            date_end
           };
+
+          if (!employeeCafe.date_end) {
+            delete employeeCafe.date_end
+          }
 
           const employeeCafeExists = await EmployeeCafeService.findById(
             employeeCafe.employee_id
@@ -234,13 +250,15 @@ const EmployeeService = {
               });
           }
           EmployeeCafeService.updateEmployeeCafe(employeeCafe)
-            .then(() => {})
+            .then(() => { })
             .catch((err) => {
               reject(err);
             });
 
           delete employee.cafe;
           delete employee.location;
+          delete employee.date_start;
+          delete employee.date_end;
           Employee.update(employee)
             .then(() => {
               db.commit();

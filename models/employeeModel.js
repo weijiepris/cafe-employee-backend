@@ -5,12 +5,13 @@ const Employee = {
     return new Promise((resolve, reject) => {
       const query = `SELECT e.*, c.name AS 'cafe_name', c.location,
                       CASE
-                        WHEN DATEDIFF(NOW(), ec.date_start) < 0 THEN 0
-                        ELSE DATEDIFF(NOW(), ec.date_start)
-                      END AS days_worked
-                    FROM employee e
-                    LEFT JOIN employee_cafe ec ON e.id = ec.employee_id
-                    LEFT JOIN cafe c ON c.id = ec.cafe_id;`;
+                        WHEN ec.date_end IS NULL THEN DATEDIFF(NOW(), ec.date_start)
+                        ELSE DATEDIFF(ec.date_end, ec.date_start)
+                      END AS days_worked,
+                      ec.date_start, ec.date_end
+                      FROM employee e
+                      LEFT JOIN employee_cafe ec ON e.id = ec.employee_id
+                      LEFT JOIN cafe c ON c.id = ec.cafe_id;`;
       db.query(query, (error, result) => {
         if (error) {
           reject(error);
@@ -34,25 +35,26 @@ const Employee = {
 
   findByCafe: (cafe) => {
     return new Promise((resolve, reject) => {
-      const query = `SELECT employee.*,
-                      CASE
-                        WHEN SUM(DATEDIFF(IFNULL(employee_cafe.date_end, CURDATE()), employee_cafe.date_start)) >= 0
-                        THEN SUM(DATEDIFF(IFNULL(employee_cafe.date_end, CURDATE()), employee_cafe.date_start))
-                        ELSE 0
-                      END AS days_worked,
-                      cafe.name as 'cafe_name',
-                      cafe.location
-                    FROM employee
-                    JOIN employee_cafe ON employee.id = employee_cafe.employee_id
-                    JOIN cafe ON employee_cafe.cafe_id = cafe.id
-                    WHERE cafe.name = '${cafe}'
-                    GROUP BY employee.id, employee.name, employee.email_address, employee.phone_number, cafe_name, 
-                    cafe.location
-                    ORDER BY days_worked DESC;`;
+      const query = `SELECT e.*,
+      CASE
+        WHEN ec.date_end IS NULL THEN DATEDIFF(NOW(), ec.date_start)
+        ELSE DATEDIFF(ec.date_end, ec.date_start)
+      END AS days_worked,
+      c.name AS 'cafe_name',
+      c.location,
+      ec.date_start,
+      ec.date_end
+    FROM employee e
+    JOIN employee_cafe ec ON e.id = ec.employee_id
+    JOIN cafe c ON ec.cafe_id = c.id
+    WHERE c.name = '${cafe}'
+    GROUP BY e.id, e.name, e.email_address, e.phone_number, cafe_name, c.location, ec.date_start, ec.date_end
+    ORDER BY days_worked DESC;`;
       db.query(query, (error, result) => {
         if (error) {
           reject(error);
         }
+        console.log("result:", result)
         resolve(result);
       });
     });
@@ -60,16 +62,22 @@ const Employee = {
 
   findCafeByNameAndLocation: (cafeName, location) => {
     return new Promise((resolve, reject) => {
-      const query = `SELECT e.*, c.name AS 'cafe_name', c.location,
+      const query = `SELECT e.*,
                       CASE
-                        WHEN DATEDIFF(NOW(), ec.date_start) < 0 THEN 0
-                        ELSE DATEDIFF(NOW(), ec.date_start)
-                      END AS days_worked
+                        WHEN ec.date_end IS NULL THEN DATEDIFF(NOW(), ec.date_start)
+                        ELSE DATEDIFF(ec.date_end, ec.date_start)
+                      END AS days_worked,
+                      c.name AS 'cafe_name',
+                      c.location,
+                      ec.date_start,
+                      ec.date_end
                     FROM employee e
-                    LEFT JOIN employee_cafe ec ON e.id = ec.employee_id
-                    LEFT JOIN cafe c ON c.id = ec.cafe_id
-                    WHERE LOWER(c.name) = LOWER('${cafeName}')
-                    AND LOWER(c.location) = LOWER('${location}');`;
+                    JOIN employee_cafe ec ON e.id = ec.employee_id
+                    JOIN cafe c ON ec.cafe_id = c.id
+                    WHERE c.location = '${location}'
+                    AND c.name = '${cafeName}'
+                    GROUP BY e.id, e.name, e.email_address, e.phone_number, cafe_name, c.location, ec.date_start, ec.date_end
+                    ORDER BY days_worked DESC;`;
       db.query(query, (error, result) => {
         if (error) {
           reject(error);
@@ -81,15 +89,21 @@ const Employee = {
 
   findCafeByLocation: (location) => {
     return new Promise((resolve, reject) => {
-      const query = `SELECT e.*, c.name AS 'cafe_name', c.location,
-                      CASE
-                        WHEN DATEDIFF(NOW(), ec.date_start) < 0 THEN 0
-                        ELSE DATEDIFF(NOW(), ec.date_start)
-                      END AS days_worked
-                    FROM employee e
-                    LEFT JOIN employee_cafe ec ON e.id = ec.employee_id
-                    LEFT JOIN cafe c ON c.id = ec.cafe_id
-                    WHERE LOWER(c.location) = LOWER('${location}');`;
+      const query = `SELECT e.*,
+      CASE
+        WHEN ec.date_end IS NULL THEN DATEDIFF(NOW(), ec.date_start)
+        ELSE DATEDIFF(ec.date_end, ec.date_start)
+      END AS days_worked,
+      c.name AS 'cafe_name',
+      c.location,
+      ec.date_start,
+      ec.date_end
+    FROM employee e
+    JOIN employee_cafe ec ON e.id = ec.employee_id
+    JOIN cafe c ON ec.cafe_id = c.id
+    WHERE c.location = '${location}'
+    GROUP BY e.id, e.name, e.email_address, e.phone_number, cafe_name, c.location, ec.date_start, ec.date_end
+    ORDER BY days_worked DESC;`;
       db.query(query, (error, result) => {
         if (error) {
           reject(error);
