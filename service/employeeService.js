@@ -165,6 +165,7 @@ const EmployeeService = {
   updateEmployee: (req, res) => {
     return new Promise(async (resolve, reject) => {
       let employee = req.body;
+      console.log("updating employeeing")
       const date_start = employee.date_start;
       const date_end = employee.date_end;
       db.beginTransaction(async (dbErr) => {
@@ -234,13 +235,15 @@ const EmployeeService = {
 
           if (employeeCafeExists.length === 0) {
             employeeCafe.date_start = new Date();
-
             EmployeeCafeService.createEmployeeCafe(employeeCafe)
               .then(() => {
                 db.commit();
                 resolve(employee);
+                console.log("CREATed NEW RECORD")
+                return;
               })
               .catch((err) => {
+                console.log("ERR NEW RECORD")
                 if (err.code === "ER_DUP_ENTRY") {
                   reject(
                     `Employee with ID '${employee.id}' already exists in Cafe '${cafeExists[0].name}' in location '${cafeExists[0].location}'. Not possible to be in more than 1 cafe`
@@ -249,6 +252,8 @@ const EmployeeService = {
                 reject(err);
               });
           }
+
+          console.log("updating", employeeCafe)
           EmployeeCafeService.updateEmployeeCafe(employeeCafe)
             .then(() => { })
             .catch((err) => {
