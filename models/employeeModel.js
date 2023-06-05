@@ -54,7 +54,6 @@ const Employee = {
         if (error) {
           reject(error);
         }
-        console.log("result:", result)
         resolve(result);
       });
     });

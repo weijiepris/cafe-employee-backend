@@ -23,4 +23,30 @@ const validateCafe = (cafe) => {
   return !(!cafe.name || !cafe.description || !cafe.location);
 };
 
-module.exports = { validateEmployee, validateEmployeeWithId, validateCafe };
+const transformDate = (employee) => {
+  let date_start = employee.tempDateStart;
+  let date_end = employee.tempDateEnd;
+
+  const temp_start = new Date(date_start);
+  if (isNaN(temp_start.getTime())) {
+    employee.date_start = null;
+  } else {
+    employee.date_start = new Date(date_start);
+  }
+
+  const temp_end = new Date(date_end);
+  if (isNaN(temp_end.getTime())) {
+    employee.date_end = null;
+  } else {
+    employee.date_end = new Date(date_end);
+  }
+  delete employee.tempDateStart;
+  delete employee.tempDateEnd;
+};
+
+module.exports = {
+  validateEmployee,
+  validateEmployeeWithId,
+  validateCafe,
+  transformDate,
+};

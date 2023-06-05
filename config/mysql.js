@@ -9,7 +9,6 @@ const db = mysql.createConnection({
 
 // Check if the database exists
 const initialiseTables = () => {
-
   db.query(
     "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'cafedb'",
     (err, results) => {
@@ -22,18 +21,16 @@ const initialiseTables = () => {
             if (err) {
               console.log("Error creating database:", err);
             } else {
-              console.log("Database 'cafedb' created successfully");
               createEmployeeTable();
             }
           });
         } else {
-          console.log("Database 'cafedb' already exists");
           createEmployeeTable();
         }
       }
     }
   );
-}
+};
 
 // Function to create the employee table
 function createEmployeeTable() {
@@ -57,7 +54,6 @@ function createEmployeeTable() {
             console.log("Error creating employee table:", err);
             createCafeTable();
           } else {
-            console.log("Employee table created successfully");
             createCafeTable();
           }
         }
@@ -89,7 +85,6 @@ function createCafeTable() {
             console.log("Error creating cafe table:", err);
             createEmployeeCafeTable();
           } else {
-            console.log("Cafe table created successfully");
             createEmployeeCafeTable();
           }
         }
@@ -120,7 +115,6 @@ function createEmployeeCafeTable() {
           if (err) {
             console.log("Error creating employee_cafe table:", err);
           } else {
-            console.log("employee_cafe table created successfully");
           }
         }
       );

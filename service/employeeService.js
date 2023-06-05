@@ -3,6 +3,8 @@ const db = require("../config/mysql");
 const {
   validateEmployeeWithId,
   validateEmployee,
+  validateDate,
+  transformDate,
 } = require("./utilities/validator");
 const CafeService = require("./cafeService");
 const EmployeeCafeService = require("./employeeCafeService");
@@ -78,11 +80,14 @@ const EmployeeService = {
         }
 
         let employee = req.body;
-        console.log("creating employee", employee)
-        const date_start = employee.date_start;
+
         if (!validateEmployee(employee)) {
           reject("One or more information about Employee not found");
         }
+
+        transformDate(employee);
+        const date_start = employee.date_start;
+
         employee.id = generateEmployeeUUID();
         const { cafe, location } = employee;
         let cafeExists;
@@ -108,22 +113,19 @@ const EmployeeService = {
         delete employee.cafe;
         delete employee.location;
         delete employee.date_start;
+        delete employee.date_end;
 
         Employee.create(employee)
           .then(() => {
             if (!cafe && !location) {
               db.commit();
-              console.log("employee created", employee)
               resolve(employee);
             }
           })
           .catch((err) => {
             if (err.code === "ER_DUP_ENTRY") {
-              return res.status(400).json({
-                message: `Employee '${employee.name}' already exists`,
-              });
+              reject(`Employee '${employee.name}' already exists`);
             }
-            return res.status(400).json({ message: err.code });
           });
 
         if (cafe && location) {
@@ -139,8 +141,6 @@ const EmployeeService = {
             cafe_id: cafeExists[0].id,
             date_start: date_start,
           };
-
-          console.log("creating employeeCafe", employeeCafe)
           EmployeeCafeService.createEmployeeCafe(employeeCafe)
             .then(() => {
               db.commit();
@@ -165,7 +165,6 @@ const EmployeeService = {
   updateEmployee: (req, res) => {
     return new Promise(async (resolve, reject) => {
       let employee = req.body;
-      console.log("updating employeeing")
       const date_start = employee.date_start;
       const date_end = employee.date_end;
       db.beginTransaction(async (dbErr) => {
@@ -222,11 +221,11 @@ const EmployeeService = {
             employee_id: employeeExists[0].id,
             cafe_id: cafeExists[0].id,
             date_start,
-            date_end
+            date_end,
           };
 
           if (!employeeCafe.date_end) {
-            delete employeeCafe.date_end
+            delete employeeCafe.date_end;
           }
 
           const employeeCafeExists = await EmployeeCafeService.findById(
@@ -239,11 +238,9 @@ const EmployeeService = {
               .then(() => {
                 db.commit();
                 resolve(employee);
-                console.log("CREATed NEW RECORD")
                 return;
               })
               .catch((err) => {
-                console.log("ERR NEW RECORD")
                 if (err.code === "ER_DUP_ENTRY") {
                   reject(
                     `Employee with ID '${employee.id}' already exists in Cafe '${cafeExists[0].name}' in location '${cafeExists[0].location}'. Not possible to be in more than 1 cafe`
@@ -253,9 +250,8 @@ const EmployeeService = {
               });
           }
 
-          console.log("updating", employeeCafe)
           EmployeeCafeService.updateEmployeeCafe(employeeCafe)
-            .then(() => { })
+            .then(() => {})
             .catch((err) => {
               reject(err);
             });
