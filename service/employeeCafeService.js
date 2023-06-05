@@ -15,19 +15,6 @@ const EmployeeCafeService = {
 
   updateEmployeeCafe: (employeeCafe) => {
     return new Promise((resolve, reject) => {
-
-      if (employeeCafe.date_start && employeeCafe.date_start !== "") {
-        employeeCafe.date_start = formatDate(employeeCafe.date_start)
-      } else {
-        employeeCafe.date_start = null;
-      }
-
-      if (employeeCafe.date_end && employeeCafe.date_end !== "") {
-        employeeCafe.date_end = formatDate(employeeCafe.date_end)
-      } else {
-        employeeCafe.date_end = null;
-      }
-
       return EmployeeCafe.update(employeeCafe)
         .then((response) => {
           resolve(response);
@@ -55,24 +42,25 @@ const EmployeeCafeService = {
   },
 };
 
-
 const formatDate = (dateString) => {
-  console.log("format", dateString)
+  dateString = dateString.replaceAll("'", "");
+  if (!dateString) return null;
+
   if (dateString instanceof Date) {
     let month = dateString.getMonth() + 1;
     let date = dateString.getDate();
 
-    if (month < 10) month = "0" + month
+    if (month < 10) month = "0" + month;
     if (date < 10) date = "0" + date;
 
-
-    return `${dateString.getFullYear()}-${month}-${date}`;
+    return `'${dateString.getFullYear()}-${month}-${date}'`;
   }
-  const dateParts = dateString.split('/');
+
+  const dateParts = dateString.split("/");
   const year = dateParts[2];
   const month = dateParts[0];
   const day = dateParts[1];
 
-  return `${year}-${month}-${day}`;
+  return `'${year}-${month}-${day}'`;
 };
 module.exports = EmployeeCafeService;

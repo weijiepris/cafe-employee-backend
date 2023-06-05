@@ -3,13 +3,17 @@ const db = require("../config/mysql");
 const EmployeeCafe = {
   create: (employeeCafe) => {
     return new Promise((resolve, reject) => {
-      const query = `INSERT INTO employee_cafe (employee_id, cafe_id, date_start) VALUES ('${
+      const query = `INSERT INTO employee_cafe (employee_id, cafe_id, date_start, date_end) VALUES ('${
         employeeCafe.employee_id
-      }', '${employeeCafe.cafe_id}', ${formatDate(employeeCafe.date_start)});`;
+      }', '${employeeCafe.cafe_id}', ${formatDate(
+        employeeCafe.date_start
+      )}, ${formatDate(employeeCafe.date_end)});`;
 
+      console.log(query);
       db.query(query, (error, result) => {
         if (error) {
           reject(error);
+          return;
         }
         resolve(result);
       });
@@ -18,10 +22,20 @@ const EmployeeCafe = {
 
   update: (employeeCafe) => {
     return new Promise((resolve, reject) => {
-      const query = `UPDATE employee_cafe SET ? WHERE employee_id = '${employeeCafe.employee_id}'`;
+      const { employee_id, cafe_id, date_start, date_end } = employeeCafe;
+
+      const query = `UPDATE employee_cafe SET employee_id = '${employee_id}', cafe_id = '${cafe_id}', date_start = ${formatDate(
+        date_start
+      )}, date_end = ${formatDate(date_end)} WHERE employee_id = '${
+        employeeCafe.employee_id
+      }'`;
+
+      console.log(query);
       db.query(query, employeeCafe, (error, result) => {
         if (error) {
+          console.log(error);
           reject(error);
+          return;
         }
         resolve(result);
       });
@@ -61,4 +75,5 @@ const formatDate = (dateString) => {
 
   return `'${year}-${month}-${day}'`;
 };
+
 module.exports = EmployeeCafe;

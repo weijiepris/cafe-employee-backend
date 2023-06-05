@@ -5,6 +5,7 @@ const {
   validateEmployee,
   validateDate,
   transformDate,
+  transformDate2,
 } = require("./utilities/validator");
 const CafeService = require("./cafeService");
 const EmployeeCafeService = require("./employeeCafeService");
@@ -175,6 +176,9 @@ const EmployeeService = {
         if (!validateEmployeeWithId(employee)) {
           reject("One or more information about Employee not found");
         }
+
+        transformDate2(employee);
+
         const { id: employeId, cafe, location } = employee;
         const employeeExists = await EmployeeService.findEmployeeById(
           employeId
@@ -233,7 +237,10 @@ const EmployeeService = {
           );
 
           if (employeeCafeExists.length === 0) {
-            employeeCafe.date_start = new Date();
+            if (!employeeCafe.date_start) {
+              employeeCafe.date_start = new Date();
+            }
+
             EmployeeCafeService.createEmployeeCafe(employeeCafe)
               .then(() => {
                 db.commit();
