@@ -3,14 +3,16 @@ const CafeService = require("../../service/cafeService");
 const CafeCreateController = {
   create: (req, res) => {
     const { name, description, location } = req.body;
-    const imageFile = req.file;
+    const imageFile = req.file.buffer;
+
+    const imageBuffer = Buffer.from(imageFile, 'base64');
 
     // transform data
     const cafe = {
       name,
       description,
       location,
-      logo: imageFile,
+      logo: imageBuffer,
     };
 
     req.body = cafe;

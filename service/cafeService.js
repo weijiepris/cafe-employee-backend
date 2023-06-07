@@ -23,10 +23,9 @@ const CafeService = {
         .then((response) => {
           response.forEach((cafe) => {
             if (cafe.logo) {
-              const buffer = Buffer.from(cafe.logo, "hex");
-              const uint8Array = new Uint8Array(buffer);
-              const blob = new Blob([uint8Array], { type: "image/jpeg" });
-              cafe.logo = blob;
+              const imageBuffer = cafe.logo;
+              const base64IMage = Buffer.from(imageBuffer).toString('base64');
+              cafe.logo = base64IMage;
             }
           });
           resolve(response);

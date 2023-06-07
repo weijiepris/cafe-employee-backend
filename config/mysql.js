@@ -2,7 +2,7 @@ const mysql = require("mysql2");
 
 // Create a connection
 const db = mysql.createConnection({
-  host: "mysql",
+  host: "localhost",
   user: "root",
   password: "pass123",
 });
@@ -75,7 +75,7 @@ function createCafeTable() {
           id VARCHAR(36) NOT NULL,
           name VARCHAR(255) NOT NULL COMMENT 'name of cafe',
           description VARCHAR(255) NOT NULL COMMENT 'description of cafe',
-          logo BLOB,
+          logo MEDIUMBLOB,
           location VARCHAR(255) NOT NULL COMMENT 'location of cafe',
           PRIMARY KEY (id),
           UNIQUE KEY cafe_unique_id (name, location)
