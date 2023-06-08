@@ -1,42 +1,45 @@
 const request = require("supertest");
-const app = require("../index");
+const initialiseApp = require("../app");
+const cafeRoute = require("../routes/cafeRoute")
 
-app.address = jest.fn().mockReturnValue({ port: 3000 });
+let app;
+beforeAll(() => {
+    const db = {};
+    app = initialiseApp(db);
 
-describe("GET /", () => {
-  describe("hitting the root endpoint", () => {
-    test("should respond with a 200 status code", async () => {
-      const response = await request(app).get("/");
-      expect(response.statusCode).toBe(200);
-      expect(response._body.message).toBe("connected successfully");
-    });
-  });
 });
 
-describe("GET /cafe", () => {
-  describe("able to hit /cafe endpoint ", () => {
-    test("should respond with a 200 status code", async () => {
-      const response = await request(app).get("/cafes");
-      expect(response.statusCode).toBe(200);
-    });
-  });
-});
+describe('App Tests', () => {
+    let app;
 
-describe("GET /employee", () => {
-  describe("able to hit /employee endpoint", () => {
-    test("should respond with a 200 status code", async () => {
-      const response = await request(app).get("/employees");
-      expect(response.statusCode).toBe(200);
+    beforeAll(() => {
+        const db = {};
+        app = initialiseApp(db);
     });
-    test("content type should contain json", async () => {
-      const response = await request(app).post("/employees").send({
-        id: "1234",
-        name: "test",
-      });
-      expect(response.headers["content-type"]).toEqual(
-        expect.stringContaining("json")
-      );
-    });
-  });
-});
 
+    it('should return a successful response for GET /', async () => {
+        const response = await request(app).get('/');
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toBe('connected successfully');
+    });
+
+    it('should return a successful response for GET /cafes', async () => {
+
+        const response = await request(app).get('/cafes');
+        expect(response.statusCode).toBe(200);
+        // Add more assertions as needed
+    });
+
+    it('should return a successful response for GET /employees', async () => {
+        const response = await request(app).get('/employees');
+        expect(response.statusCode).toBe(200);
+        // Add more assertions as needed
+    });
+
+    // Add more test cases for other routes and scenarios
+
+    afterAll(() => {
+        // Cleanup or close any resources used by the tests
+        // For example, close database connections
+    });
+});

@@ -8,6 +8,7 @@ const CafeCreateController = require("../controllers/cafe/create");
 
 const router = express.Router();
 const upload = multer();
+console.log("HERE")
 
 router.get("/", CafeReadController.findAll);
 router.get("/name/:name", CafeReadController.findByCafeName);
