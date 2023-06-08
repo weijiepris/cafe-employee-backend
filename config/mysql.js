@@ -4,7 +4,7 @@ const initialiseDatabase = require("./initialise");
 
 // Create a connection
 const db = mysql.createConnection({
-  host: "localhost",
+  host: "mysql",
   user: "root",
   password: "pass123",
 });
