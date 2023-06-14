@@ -1,8 +1,6 @@
-const CafeService = require("../../service/cafeService");
-
-const CafeDeleteController = {
+const CafeDeleteController = (cafeService) => ({
   deleteById: (req, res) => {
-    CafeService.deleteCafeById(req, res)
+    cafeService.deleteCafeById(req, res)
       .then(() => {
         return res.sendStatus(200);
       })
@@ -10,6 +8,6 @@ const CafeDeleteController = {
         return res.status(400).json(err);
       });
   }
-};
+});
 
 module.exports = CafeDeleteController;

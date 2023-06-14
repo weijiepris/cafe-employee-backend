@@ -1,92 +1,73 @@
-const Employee = require("../models/employeeModel");
-const db = require("../config/mysql");
-const {
-  validateEmployeeWithId,
-  validateEmployee,
-  validateDate,
-  transformDate,
-  transformDate2,
-} = require("./utilities/validator");
-const CafeService = require("./cafeService");
-const EmployeeCafeService = require("./employeeCafeService");
 const { generateEmployeeUUID } = require("./utilities/uuid");
 
-const EmployeeService = {
-  findAllEmployee: (req, res) => {
+class EmployeeService {
+  constructor(employeeModel, db, validator, cafeService, employeeCafeService) {
+    this.Employee = employeeModel;
+    this.db = db;
+    this.validator = validator;
+    this.CafeService = cafeService;
+    this.EmployeeCafeService = employeeCafeService;
+  }
+
+  findAllEmployee(req, res) {
     return new Promise((resolve, reject) => {
       const cafe = req.query.cafe;
 
       if (cafe) {
-        return EmployeeService.findEmployeeByCafe(req, res)
+        return this.findEmployeeByCafe(req, res)
           .then((response) => resolve(response))
           .catch((err) => reject(err));
       }
 
-      return Employee.findAll()
+      return this.Employee.findAll()
         .then((response) => resolve(response))
         .catch((err) => reject(err));
     });
-  },
+  }
 
-  findEmployeeByCafe: (req, res) => {
+  findEmployeeByCafe(req, res) {
+    const cafeName = req.query.cafe;
+
+    return this.Employee.findByCafe(cafeName);
+  }
+
+  findEmployeeByCafeNameAndLocation(req, res) {
+    const cafeName = req.params.name;
+    const location = req.params.location;
+
+    return this.Employee.findCafeByNameAndLocation(cafeName, location);
+  }
+
+  findEmployeeByCafeName(req, res) {
+    const cafeName = req.params.name;
+
+    return this.Employee.findByCafe(cafeName);
+  }
+
+  findEmployeeByCafeLocation(req, res) {
+    const location = req.params.location;
+
+    return this.Employee.findCafeByLocation(location);
+  }
+
+  findEmployeeById(id) {
+    return this.Employee.findById(id);
+  }
+
+  createEmployee(req, res) {
     return new Promise((resolve, reject) => {
-      const cafeName = req.query.cafe;
-
-      return Employee.findByCafe(cafeName)
-        .then((response) => resolve(response))
-        .catch((err) => reject(err));
-    });
-  },
-
-  findEmployeeByCafeNameAndLocation: (req, res) => {
-    return new Promise((resolve, reject) => {
-      const cafeName = req.params.name;
-      const location = req.params.location;
-
-      return Employee.findCafeByNameAndLocation(cafeName, location)
-        .then((response) => resolve(response))
-        .catch((err) => reject(err));
-    });
-  },
-
-  findEmployeeByCafeName: (req, res) => {
-    return new Promise((resolve, reject) => {
-      const cafeName = req.params.name;
-
-      return Employee.findByCafe(cafeName)
-        .then((response) => resolve(response))
-        .catch((err) => reject(err));
-    });
-  },
-
-  findEmployeeByCafeLocation: (req, res) => {
-    return new Promise((resolve, reject) => {
-      const location = req.params.location;
-
-      return Employee.findCafeByLocation(location)
-        .then((response) => resolve(response))
-        .catch((err) => reject(err));
-    });
-  },
-
-  findEmployeeById: (id) => {
-    return Employee.findById(id);
-  },
-
-  createEmployee: (req, res) => {
-    return new Promise((resolve, reject) => {
-      db.beginTransaction(async (dbErr) => {
+      this.db.beginTransaction(async (dbErr) => {
         if (dbErr) {
           reject("Error beginning transaction:", dbErr);
         }
 
         let employee = req.body;
 
-        if (!validateEmployee(employee)) {
+        if (!this.validator.validateEmployee(employee)) {
           reject("One or more information about Employee not found");
         }
 
-        transformDate(employee);
+        this.validator.transformDate(employee);
         const date_start = employee.date_start;
 
         employee.id = generateEmployeeUUID();
@@ -98,7 +79,8 @@ const EmployeeService = {
               `Please make sure that Cafe name and location is provided, please check again`
             );
           }
-          cafeExists = await CafeService.findCafeByNameAndLocation(
+
+          cafeExists = await this.CafeService.findCafeByNameAndLocation(
             cafe,
             location
           );
@@ -116,10 +98,10 @@ const EmployeeService = {
         delete employee.date_start;
         delete employee.date_end;
 
-        Employee.create(employee)
+        this.Employee.create(employee)
           .then(() => {
             if (!cafe && !location) {
-              db.commit();
+              this.db.commit();
               resolve(employee);
             }
           })
@@ -131,7 +113,7 @@ const EmployeeService = {
 
         if (cafe && location) {
           if (cafeExists.length === 0) {
-            db.rollback(() => {
+            this.db.rollback(() => {
               console.error("Transaction rolled back.");
               reject(`Cafe '${cafe}' does not exist in location '${location}'`);
             });
@@ -142,14 +124,14 @@ const EmployeeService = {
             cafe_id: cafeExists[0].id,
             date_start: date_start,
           };
-          EmployeeCafeService.createEmployeeCafe(employeeCafe)
+          this.EmployeeCafeService.createEmployeeCafe(employeeCafe)
             .then(() => {
-              db.commit();
+              this.db.commit();
               resolve(employeeCafe);
             })
             .catch((err) => {
               if (err.code === "ER_DUP_ENTRY") {
-                db.rollback(() => {
+                this.db.rollback(() => {
                   console.error("Transaction rolled back.");
                   reject(
                     `Employee with ID '${employee.id}' already exists in Cafe '${cafeExists[0].name}' in location '${cafeList[0].location}'. Not possible to be in more than 1 cafe`
@@ -161,28 +143,26 @@ const EmployeeService = {
         }
       });
     });
-  },
+  }
 
-  updateEmployee: (req, res) => {
+  updateEmployee(req, res) {
     return new Promise(async (resolve, reject) => {
       let employee = req.body;
       const date_start = employee.date_start;
       const date_end = employee.date_end;
-      db.beginTransaction(async (dbErr) => {
+      this.db.beginTransaction(async (dbErr) => {
         if (dbErr) {
           reject("Error beginning transaction:", err);
         }
 
-        if (!validateEmployeeWithId(employee)) {
+        if (!this.validator.validateEmployeeWithId(employee)) {
           reject("One or more information about Employee not found");
         }
 
-        transformDate2(employee);
+        this.validator.transformDate2(employee);
 
         const { id: employeId, cafe, location } = employee;
-        const employeeExists = await EmployeeService.findEmployeeById(
-          employeId
-        );
+        const employeeExists = await this.findEmployeeById(employeId);
 
         if (employeeExists.length === 0) {
           reject(`Employee with id '${employeId}' does not exist`);
@@ -194,9 +174,9 @@ const EmployeeService = {
           delete employee.date_start;
           delete employee.date_end;
 
-          return Employee.update(employee)
+          return this.Employee.update(employee)
             .then(() => {
-              db.commit();
+              this.db.commit();
               resolve(employee);
             })
             .catch((err) => {
@@ -211,7 +191,7 @@ const EmployeeService = {
             );
           }
 
-          const cafeExists = await CafeService.findCafeByNameAndLocation(
+          const cafeExists = await this.CafeService.findCafeByNameAndLocation(
             cafe,
             location
           ).then((response) => response);
@@ -232,7 +212,7 @@ const EmployeeService = {
             delete employeeCafe.date_end;
           }
 
-          const employeeCafeExists = await EmployeeCafeService.findById(
+          const employeeCafeExists = await this.EmployeeCafeService.findById(
             employeeCafe.employee_id
           );
 
@@ -241,9 +221,9 @@ const EmployeeService = {
               employeeCafe.date_start = new Date();
             }
 
-            EmployeeCafeService.createEmployeeCafe(employeeCafe)
+            this.EmployeeCafeService.createEmployeeCafe(employeeCafe)
               .then(() => {
-                db.commit();
+                this.db.commit();
                 resolve(employee);
                 return;
               })
@@ -257,7 +237,7 @@ const EmployeeService = {
               });
           }
 
-          EmployeeCafeService.updateEmployeeCafe(employeeCafe)
+          this.EmployeeCafeService.updateEmployeeCafe(employeeCafe)
             .then(() => {})
             .catch((err) => {
               reject(err);
@@ -267,9 +247,9 @@ const EmployeeService = {
           delete employee.location;
           delete employee.date_start;
           delete employee.date_end;
-          Employee.update(employee)
+          this.Employee.update(employee)
             .then(() => {
-              db.commit();
+              this.db.commit();
               resolve(employee);
             })
             .catch((err) => {
@@ -278,19 +258,19 @@ const EmployeeService = {
         }
       });
     });
-  },
+  }
 
-  deleteEmployeeById: (req, res) => {
+  deleteEmployeeById(req, res) {
     return new Promise(async (resolve, reject) => {
       const id = req.params.id;
 
-      const employee = await EmployeeService.findEmployeeById(id);
+      const employee = await this.findEmployeeById(id);
 
       if (employee.length === 0) {
         reject({ message: `Employee with id '${id}' does not exist` });
       }
 
-      Employee.deleteById(id)
+      this.Employee.deleteById(id)
         .then((response) => {
           resolve({ message: "Employee deleted", response });
         })
@@ -298,7 +278,7 @@ const EmployeeService = {
           reject({ message: `Unable to delete employee ${err}` });
         });
     });
-  },
-};
+  }
+}
 
 module.exports = EmployeeService;

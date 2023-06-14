@@ -1,8 +1,6 @@
-const CafeService = require("../../service/cafeService");
-
-const CafeUpdateController = {
+const CafeUpdateController = (cafeService) => ({
   update: (req, res) => {
-    CafeService.updateCafe(req, res)
+    cafeService.updateCafe(req, res)
       .then((response) => {
         return res.status(200).json([response]);
       })
@@ -10,6 +8,6 @@ const CafeUpdateController = {
         return res.status(400).json(err);
       });
   }
-};
+});
 
 module.exports = CafeUpdateController;

@@ -9,7 +9,6 @@ const EmployeeCafe = {
         employeeCafe.date_start
       )}, ${formatDate(employeeCafe.date_end)});`;
 
-      console.log(query);
       db.query(query, (error, result) => {
         if (error) {
           reject(error);
@@ -30,10 +29,8 @@ const EmployeeCafe = {
         employeeCafe.employee_id
       }'`;
 
-      console.log(query);
       db.query(query, employeeCafe, (error, result) => {
         if (error) {
-          console.log(error);
           reject(error);
           return;
         }

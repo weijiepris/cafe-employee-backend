@@ -1,30 +1,33 @@
-const CafeService = require("../../service/cafeService");
+const CafeCreateController = (cafeService) => ({
+    create: (req, res) => {
+        const {name, description, location} = req.body;
+        try {
+            req.file.buffer;
+        } catch (err) {
+            return res.status(400).json("Invalid file format. Only JPG, JPEG, PNG, and GIF files are allowed.");
+        }
 
-const CafeCreateController = {
-  create: (req, res) => {
-    const { name, description, location } = req.body;
-    const imageFile = req.file.buffer;
+        const imageFile = req.file.buffer;
+        const imageBuffer = Buffer.from(imageFile, 'base64');
 
-    const imageBuffer = Buffer.from(imageFile, 'base64');
+        // transform data
+        const cafe = {
+            name,
+            description,
+            location,
+            logo: imageBuffer,
+        };
 
-    // transform data
-    const cafe = {
-      name,
-      description,
-      location,
-      logo: imageBuffer,
-    };
+        req.body = cafe;
 
-    req.body = cafe;
-
-    return CafeService.createCafe(req, res)
-      .then((response) => {
-        return res.status(200).json(response);
-      })
-      .catch((err) => {
-        return res.status(400).json(err);
-      });
-  },
-};
+        return cafeService.createCafe(req, res)
+            .then((response) => {
+                return res.status(200).json(response);
+            })
+            .catch((err) => {
+                return res.status(400).json(err);
+            });
+    },
+});
 
 module.exports = CafeCreateController;

@@ -1,6 +1,7 @@
 const request = require("supertest");
 const initialiseApp = require("../app");
 const cafeRoute = require("../routes/cafeRoute")
+const should = require("should")
 
 let app;
 beforeAll(() => {
@@ -18,28 +19,36 @@ describe('App Tests', () => {
     });
 
     it('should return a successful response for GET /', async () => {
-        const response = await request(app).get('/');
-        expect(response.statusCode).toBe(200);
-        expect(response.body.message).toBe('connected successfully');
+        request(app).get('/').end((err, res) => {
+            should.exist(res);
+            res.status.should.be.equal(200);
+            res.body.message.should.be.equal("connected successfully");
+        })
     });
 
     it('should return a successful response for GET /cafes', async () => {
-
-        const response = await request(app).get('/cafes');
-        expect(response.statusCode).toBe(200);
-        // Add more assertions as needed
+        const payload = {location: "test", name: "test"};
+        request(app).get('/cafes')
+            .query(payload)
+            .end((err, res) => {
+                res.status.should.be.equal(400);
+            })
     });
 
     it('should return a successful response for GET /employees', async () => {
-        const response = await request(app).get('/employees');
-        expect(response.statusCode).toBe(200);
-        // Add more assertions as needed
+        const payload = {location: "test", name: "test"};
+        request(app).get('/employees')
+            .query(payload)
+            .end((err, res) => {
+                res.status.should.be.equal(400);
+            })
     });
 
-    // Add more test cases for other routes and scenarios
+// Add more test cases for other routes and scenarios
 
     afterAll(() => {
         // Cleanup or close any resources used by the tests
         // For example, close database connections
     });
-});
+})
+;

@@ -1,8 +1,6 @@
-const EmployeeService = require("../../service/employeeService");
-
-const EmployeeDeleteController = {
+const EmployeeDeleteController = (employeeService) => ({
   deleteById: (req, res) => {
-    EmployeeService.deleteEmployeeById(req, res)
+    employeeService.deleteEmployeeById(req, res)
       .then(() => {
         res.sendStatus(200);
       })
@@ -10,6 +8,6 @@ const EmployeeDeleteController = {
         res.status(400).json(err.message);
       });
   },
-};
+});
 
 module.exports = EmployeeDeleteController;
