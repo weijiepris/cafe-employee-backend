@@ -7,7 +7,6 @@ const CafeReadController = (cafeService) => ({
         return res.status(200).json(response);
       })
       .catch((err) => {
-        console.log("HERE");
         return res.status(400).json(err);
       });
   },

@@ -2,8 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 
-const initialiseApp = (db) => {
-    // to allow access into backend
+const initialiseApp = (db, cafeService, employeeService) => {
     app.use(cors());
     app.use(express.json());
     app.use(express.urlencoded({extended: true}));
@@ -12,13 +11,14 @@ const initialiseApp = (db) => {
     const cafeRoutes = require("./routes/cafeRoute");
     const employeeRoutes = require("./routes/employeeRoute");
 
-    // Use the router in your Express app
-    app.use("/cafes", cafeRoutes);
-    app.use("/employees", employeeRoutes);
+    app.use("/cafes", cafeRoutes(db, cafeService));
+    app.use("/employees", employeeRoutes(db, employeeService));
 
     app.get("/", (req, res) => {
-        console.log("connected to /");
         res.status(200).send({message: "connected successfully"});
+    });
+    app.get("*", (req, res) => {
+        res.status(400).send("Invalid route");
     });
 
     return app;

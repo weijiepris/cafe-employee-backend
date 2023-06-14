@@ -1,54 +1,38 @@
 const request = require("supertest");
 const initialiseApp = require("../app");
-const cafeRoute = require("../routes/cafeRoute")
-const should = require("should")
+const should = require("should");
 
-let app;
-beforeAll(() => {
-    const db = {};
-    app = initialiseApp(db);
+let appTest;
 
-});
+const db = {};
+const cafeService = {};
+const employeeService = {};
+appTest = initialiseApp(db, cafeService, employeeService);
 
 describe('App Tests', () => {
-    let app;
-
-    beforeAll(() => {
-        const db = {};
-        app = initialiseApp(db);
-    });
-
-    it('should return a successful response for GET /', async () => {
-        request(app).get('/').end((err, res) => {
-            should.exist(res);
-            res.status.should.be.equal(200);
-            res.body.message.should.be.equal("connected successfully");
-        })
-    });
-
-    it('should return a successful response for GET /cafes', async () => {
-        const payload = {location: "test", name: "test"};
-        request(app).get('/cafes')
-            .query(payload)
-            .end((err, res) => {
-                res.status.should.be.equal(400);
+    it('should return a successful response for GET /', (done) => {
+        request(appTest)
+            .get('/')
+            .expect(200)
+            .expect((res) => {
+                should.exist(res.body);
+                res.body.message.should.be.equal("connected successfully");
             })
+            .end(done);
     });
 
-    it('should return a successful response for GET /employees', async () => {
-        const payload = {location: "test", name: "test"};
-        request(app).get('/employees')
-            .query(payload)
-            .end((err, res) => {
-                res.status.should.be.equal(400);
+    it('should return a successful response for GET /', (done) => {
+        request(appTest)
+            .get('/test')
+            .expect(400)
+            .expect((res) => {
+                res.text.should.be.equal("Invalid route");
             })
+            .end(done);
     });
 
-// Add more test cases for other routes and scenarios
 
     afterAll(() => {
-        // Cleanup or close any resources used by the tests
-        // For example, close database connections
+        appTest = null;
     });
-})
-;
+});
